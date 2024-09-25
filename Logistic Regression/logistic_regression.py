@@ -10,10 +10,11 @@ def logistic(z):
     Args:
         z: numpy array shape (d,) 
     Returns:
-    logi: numpy array shape (d,) each entry transformed by the logistic function 
+       logi: numpy array shape (d,) each entry transformed by the logistic function 
     """
     logi = np.zeros(z.shape)
     ### YOUR CODE HERE
+    logi = 1 / (1 + np.exp(-z))
     ### END CODE
     assert logi.shape == z.shape
     return logi
@@ -31,13 +32,13 @@ class LogisticRegressionClassifier():
         
         np.log, np.sum, np.choose, np.dot may be useful here
         Args:
-        X: np.array shape (n,d) float - Features 
-        y: np.array shape (n,)  int - Labels 
-        w: np.array shape (d,)  float - Initial parameter vector
+           X: np.array shape (n,d) float - Features 
+           y: np.array shape (n,)  int - Labels 
+           w: np.array shape (d,)  float - Initial parameter vector
 
         Returns:
-        cost: scalar: the average negative log likelihood for logistic regression with data X, y 
-        grad: np.array shape(d, ) gradient of the average negative log likelihood at w 
+           cost: scalar: the average negative log likelihood for logistic regression with data X, y 
+           grad: np.array shape(d, ) gradient of the average negative log likelihood at w 
         """
         cost = 0
         grad = np.zeros(w.shape)
@@ -57,16 +58,16 @@ class LogisticRegressionClassifier():
         Remember the stochastic nature of the algorithm may give fluctuations in the cost as iterations increase.
 
         Args:
-        X: np.array shape (n,d) dtype float32 - Features 
-        y: np.array shape (n,) dtype int32 - Labels 
-        w: np.array shape (d,) dtype float32 - Initial parameter vector
-        lr: scalar - learning rate for gradient descent
-        batch_size: number of elements to use in minibatch
-        epochs: Number of scans through the data
+           X: np.array shape (n,d) dtype float32 - Features 
+           y: np.array shape (n,) dtype int32 - Labels 
+           w: np.array shape (d,) dtype float32 - Initial parameter vector
+           lr: scalar - learning rate for gradient descent
+           batch_size: number of elements to use in minibatch
+           epochs: Number of scans through the data
 
         sets: 
-        w: numpy array shape (d,) learned weight vector w
-        history: list/np.array len epochs - value of loss function (in-sample error) after every epoch. Used for plotting
+           w: numpy array shape (d,) learned weight vector w
+           history: list/np.array len epochs - value of loss function (in-sample error) after every epoch. Used for plotting
         """
         if w is None: w = np.zeros(X.shape[1])
         history = []        
@@ -83,12 +84,15 @@ class LogisticRegressionClassifier():
             X: np.array shape (n,d) dtype float - Features 
         
         Returns: 
-        p: numpy array shape (n, ) dtype int32, class predictions on X (-1, 1). NOTE: We want a class here, 
-        not a probability between 0 and 1. You should thus return the most likely class!
+           p: numpy array shape (n, ) dtype int32, class predictions on X (-1, 1). NOTE: We want a class here, 
+           not a probability between 0 and 1. You should thus return the most likely class!
 
         """
         out = np.ones(X.shape[0])
         ### YOUR CODE HERE
+        z = np.dot(X, self.w) + self.bias
+        probabilities = self.logistic(z)
+        out = np.where(probabilities >= 0.5, 1, 0)
         ### END CODE
         return out
     
@@ -100,11 +104,16 @@ class LogisticRegressionClassifier():
             y: np.array shape (n,) dtype int - Labels 
 
         Returns: 
-        s: float, number of correct predictions divided by n. NOTE: This is accuracy, not in-sample error!
+           s: float, number of correct predictions divided by n. NOTE: This is accuracy, not in-sample error!
 
         """
         s = 0
         ### YOUR CODE HERE
+        # Predict the class labels for X
+        predictions = self.predict(X)
+    
+        # Calculate accuracy as the fraction of correct predictions
+        s = np.mean(predictions == y)
         ### END CODE
         return s
         
