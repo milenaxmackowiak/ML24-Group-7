@@ -1,5 +1,5 @@
 import numpy as np
-from h1_util import numerical_grad_check
+#from h1_util import numerical_grad_check
 
 def logistic(z):
     """ 
@@ -71,8 +71,28 @@ class LogisticRegressionClassifier():
         """
         if w is None: w = np.zeros(X.shape[1])
         history = []        
+
         ### YOUR CODE HERE 
+        n = X.shape[0]
+
+        for epoch in range(epochs):
+            permutation = np.random.permutation(n)
+            x_shuffled = X[permutation]
+            y_shuffled = y[permutation]
+
+            for i in range(0, n, batch_size):
+                x_batch = x_shuffled[i:i + batch_size]
+                y_batch = y_shuffled[i:i + batch_size]
+
+                cost, gradient = self.cost_grad(x_batch, y_batch, w)
+
+                w = w - lr * gradient
+
+                history.append(cost)
+                print(f"Epoch: {epoch+1} Cost: {cost}")
+
         ### END CODE
+
         self.w = w
         self.history = history
 
