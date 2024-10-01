@@ -67,8 +67,16 @@ class SoftmaxClassifier():
         cost = np.nan
         grad = np.zeros(W.shape)*np.nan
         Yk = one_in_k_encoding(y, self.num_classes) # may help - otherwise you may remove it
+        
         ### YOUR CODE HERE
+        scores  = np.dot(X,W)
+        probabilities = softmax(scores)
+
+        cost = -np.mean(np.sum(Yk * np.log(probabilities + 1e-10), axis = 1))
+        grad = np.dot(X.T, (Yk-probabilities))/X.shape[0]
+
         ### END CODE
+
         return cost, grad
 
 
@@ -92,7 +100,30 @@ class SoftmaxClassifier():
         if W is None: W = np.zeros((X.shape[1], self.num_classes))
         history = []
         ### YOUR CODE HERE
+        n = X.shape[0]
+
+        for epoch in range(epochs):
+            i=np.arange(n)
+            np.random.shuffle(i)
+            X_shuffled = X[i]
+            Y_shuffled = Y[i]
+
+            for start in range(0, n, batch_size):
+                end = min(start + batch_size, n)
+                X_batch = X_shuffled[start:end]
+                Y_batch = Y_shuffled[start:end]
+
+                cost_grad = self.cost_grad(X_batch, Y_batch, W)
+                cost = cost_grad[0]
+                gradient = cost_grad[1]
+
+                W = W - lr * gradient
+
+            history.append(cost)
+            print(f'Epoch: {epoch + 1}; Cost: {cost}')
+
         ### END CODE
+
         self.W = W
         self.history = history
         
