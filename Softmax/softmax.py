@@ -26,9 +26,9 @@ def softmax(X):
     ### YOUR CODE HERE
     # Calculate softmax for each row
     for i in range(X.shape[0]):
-        max_x = np.max(X[i])  # Max value for numerical stability
-        log_sum_exp = np.log(np.sum(np.exp(X[i] - max_x))) + max_x  # log sum exp trick
-        res[i] = np.exp(X[i] - log_sum_exp)  # Softmax calculation
+      max_x = np.max(X[i])  
+      log_sum_exp = np.log(np.sum(np.exp(X[i] - max_x))) + max_x  
+      res[i] = np.exp(X[i] - log_sum_exp)  
     ### END CODE
     return res
 
@@ -68,15 +68,10 @@ class SoftmaxClassifier():
         grad = np.zeros(W.shape)*np.nan
         Yk = one_in_k_encoding(y, self.num_classes) # may help - otherwise you may remove it
         
-        ### YOUR CODE HERE
         scores  = np.dot(X,W)
         probabilities = softmax(scores)
-
-        cost = -np.mean(np.sum(Yk * np.log(probabilities + 1e-10), axis = 1))
-        grad = np.dot(X.T, (Yk-probabilities))/X.shape[0]
-
-        ### END CODE
-
+        cost = -np.mean(np.sum(Yk * np.log(probabilities + 1e-10), axis=1))
+        grad = -np.dot(X.T, (Yk - probabilities)) / X.shape[0]
         return cost, grad
 
 
