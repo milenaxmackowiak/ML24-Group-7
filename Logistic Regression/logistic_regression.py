@@ -1,5 +1,5 @@
 import numpy as np
-#from h1_util import numerical_grad_check
+from h1_util import numerical_grad_check
 
 def logistic(z):
     """ 
