@@ -13,9 +13,7 @@ def logistic(z):
     logi: numpy array shape (d,) each entry transformed by the logistic function 
     """
     logi = np.zeros(z.shape)
-    ### YOUR CODE HERE
     logi = 1 / (1 + np.exp(-z))
-    ### END CODE
     assert logi.shape == z.shape
     return logi
 
@@ -42,10 +40,12 @@ class LogisticRegressionClassifier():
         """
         cost = 0
         grad = np.zeros(w.shape)
-        ### YOUR CODE HERE
         
         # Number of samples
         n = X.shape[0]
+
+        # Convert y from {-1, 1} to {0, 1}
+        y = (y + 1) // 2 
 
         # Compute the linear part: z = X.dot(w), shape (n,)
         z = np.dot(X, w)
@@ -62,7 +62,6 @@ class LogisticRegressionClassifier():
         # Compute the gradient: grad = X.T.dot(predictions - y) / n
         grad = np.dot(X.T, (predictions - y)) / n
         
-        ### END CODE
         assert grad.shape == w.shape
         return cost, grad
 
@@ -91,7 +90,6 @@ class LogisticRegressionClassifier():
         if w is None: w = np.zeros(X.shape[1])
         history = []        
 
-        ### YOUR CODE HERE 
         n = X.shape[0]
 
         for epoch in range(epochs):
@@ -110,8 +108,6 @@ class LogisticRegressionClassifier():
                 history.append(cost)
                 print(f"Epoch: {epoch+1} Cost: {cost}")
 
-        ### END CODE
-
         self.w = w
         self.history = history
 
@@ -128,11 +124,9 @@ class LogisticRegressionClassifier():
 
         """
         out = np.ones(X.shape[0])
-        ### YOUR CODE HERE
-        z = np.dot(X, self.w) + self.bias
-        probabilities = self.logistic(z)
+        z = np.dot(X, self.w)
+        probabilities = logistic(z)  # Call the standalone logistic function
         out = np.where(probabilities >= 0.5, 1, 0)
-        ### END CODE
         return out
     
     def score(self, X, y):
@@ -147,17 +141,11 @@ class LogisticRegressionClassifier():
 
         """
         s = 0
-        ### YOUR CODE HERE
-        # Predict the class labels for X
         predictions = self.predict(X)
-    
-        # Calculate accuracy as the fraction of correct predictions
         s = np.mean(predictions == y)
-        ### END CODE
         return s
-        
 
-    
+
 def test_logistic():
     print('*'*5, 'Testing logistic function')
     a = np.array([0, 1, 2, 3])
@@ -166,7 +154,7 @@ def test_logistic():
     assert np.allclose(lg, target), 'Logistic Mismatch Expected {0} - Got {1}'.format(target, lg)
     print('Test Success!')
 
-    
+
 def test_cost():
     print('*'*5, 'Testing Cost Function')
     X = np.array([[1.0, 0.0], [1.0, 1.0], [3, 2]])
@@ -179,7 +167,7 @@ def test_cost():
     assert np.allclose(cost, target), 'Cost Function Error:  Expected {0} - Got {1}'.format(target, cost)
     print('Test Success')
 
-    
+
 def test_grad():
     print('*'*5, 'Testing  Gradient')
     X = np.array([[1.0, 0.0], [1.0, 1.0], [2.0, 3.0]])    
@@ -192,10 +180,7 @@ def test_grad():
     print('Test Success')
 
 
-    
 if __name__ == '__main__':
     test_logistic()
     test_cost()
     test_grad()
-    
-    
