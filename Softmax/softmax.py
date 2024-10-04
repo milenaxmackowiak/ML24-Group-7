@@ -101,13 +101,23 @@ class SoftmaxClassifier():
         """ Compute accuracy of classifier on data X with labels Y
 
         Args:
-           X: numpy array shape (n, d) - the data each row is a data point
-           Y: numpy array shape (n,) int - target labels numbers in {0, 1,..., k-1}
+            X: numpy array shape (n, d) - the data each row is a data point
+            Y: numpy array shape (n,) int - target labels numbers in {0, 1,..., k-1}
         Returns:
-           out: float - mean accuracy
+            out: float - mean accuracy
         """
         out = 0
         ### YOUR CODE HERE
+        
+        # Assumw that self.predict(X) gives the predicted labels for input data X
+        predictions = self.predict(X)
+
+        # Calculate the number of correct predictions
+        correct_predictions = np.sum(predictions == Y)
+
+        # Calculate mean accuracy
+        out = correct_predictions / len(Y)
+        
         ### END CODE
         return out
 
