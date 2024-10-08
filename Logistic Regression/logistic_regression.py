@@ -126,7 +126,7 @@ class LogisticRegressionClassifier():
         out = np.ones(X.shape[0])
         z = np.dot(X, self.w)
         probabilities = logistic(z)  # Call the standalone logistic function
-        out = np.where(probabilities >= 0.5, 1, 0)
+        out = np.where(probabilities >= 0.5, 1, -1)
         return out
     
     def score(self, X, y):
