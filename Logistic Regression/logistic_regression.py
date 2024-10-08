@@ -41,25 +41,17 @@ class LogisticRegressionClassifier():
         cost = 0
         grad = np.zeros(w.shape)
         
-        # Number of samples
         n = X.shape[0]
-
-        # Convert y from {-1, 1} to {0, 1}
         y = (y + 1) // 2 
-
-        # Compute the linear part: z = X.dot(w), shape (n,)
         z = np.dot(X, w)
 
-        # Compute the sigmoid: predictions = 1 / (1 + exp(-z)), shape (n,)
+       
         predictions = 1 / (1 + np.exp(-z))
 
-        # Use np.choose to select predictions for y = 1 and 1 - predictions for y = 0
         chosen = np.choose(y, [1 - predictions, predictions])
 
-        # Compute the cost using negative log-likelihood
         cost = -np.sum(np.log(chosen)) / n
 
-        # Compute the gradient: grad = X.T.dot(predictions - y) / n
         grad = np.dot(X.T, (predictions - y)) / n
         
         assert grad.shape == w.shape
