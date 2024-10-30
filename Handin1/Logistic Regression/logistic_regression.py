@@ -45,7 +45,7 @@ class LogisticRegressionClassifier():
         y = (y + 1) // 2 
         z = np.dot(X, w)
 
-       
+
         predictions = 1 / (1 + np.exp(-z))
 
         chosen = np.choose(y, [1 - predictions, predictions])
