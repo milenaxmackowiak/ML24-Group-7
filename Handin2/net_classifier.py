@@ -167,6 +167,7 @@ class NetClassifier():
         return cost, {'d_w1': d_w1, 'd_w2': d_w2, 'd_b1': d_b1, 'd_b2': d_b2}
         
     def fit(self, X_train, y_train, X_val, y_val, init_params, batch_size=32, lr=0.1, c=1e-4, epochs=30):
+        
         """ Run Mini-Batch Gradient Descent on data X, Y to minimize the in sample error for Neural Net classification
         Printing the performance every epoch is a good idea to see if the algorithm is working
     
@@ -187,58 +188,66 @@ class NetClassifier():
            hist: dict:{keys: train_loss, train_acc, val_loss, val_acc} each an np.array of size epochs of the the given cost after every epoch
            loss is the NLL loss and acc is accuracy
         """
-        
-        W1 = init_params['W1']
-        b1 = init_params['b1']
-        W2 = init_params['W2']
-        b2 = init_params['b2']
-        hist = {
-            'train_loss': None,
-            'train_acc': None,
-            'val_loss': None,
-            'val_acc': None, 
-        }
 
         
-        ### YOUR CODE HERE
+ ### YOUR CODE HERE
+
+        self.params = init_params
+        best_params = init_params.copy()
+        best_val_acc = 0
+
+        hist = {
+            'train_loss': [], 
+            'train_acc': [], 
+            'val_loss': [], 
+            'val_acc': []
+            }
+
         for epoch in range(epochs):
             indices = np.arange(X_train.shape[0])
             np.random.shuffle(indices)
             X_train, y_train = X_train[indices], y_train[indices]
-        
-        for i in range(0, X_train.shape[0], batch_size):
-            X_batch = X_train[i:i + batch_size]
-            y_batch = y_train[i:i + batch_size]
-            
-            cost, grads = self.cost_grad(X_batch, y_batch, self.params, c)
 
-            W1 -= lr * grads['d_w1']
-            b1 -= lr * grads['d_b1']
-            W2 -= lr * grads['d_w2']
-            b2 -= lr * grads['d_b2']
-        
-        train_loss, _ = self.cost_grad(X_train, y_train, self.params, c)
-        val_loss, _ = self.cost_grad(X_val, y_val, self.params, c)
-        train_acc = self.score(X_train, y_train)
-        val_acc = self.score(X_val, y_val)
-        
-        hist['train_loss'].append(train_loss)
-        hist['train_acc'].append(train_acc)
-        hist['val_loss'].append(val_loss)
-        hist['val_acc'].append(val_acc)
-        
-        if val_acc > max(hist['val_acc'], default=0):
-            self.params = {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
-        
-        print(f"Epoch {epoch+1}/{epochs}, Train Loss: {train_loss}, Val Loss: {val_loss}, Train Acc: {train_acc}, Val Acc: {val_acc}")
-        ### END CODE
+            for i in range(0, X_train.shape[0], batch_size):
+                X_batch = X_train[i:i + batch_size]
+                y_batch = y_train[i:i + batch_size]
+
+                cost, grads = self.cost_grad(X_batch, y_batch, self.params, c)
+
+                # Parameter updates
+                self.params['W1'] -= lr * grads['d_w1']
+                self.params['b1'] -= lr * grads['d_b1']
+                self.params['W2'] -= lr * grads['d_w2']
+                self.params['b2'] -= lr * grads['d_b2']
+
+            # End of epoch evaluations
+            train_loss, _ = self.cost_grad(X_train, y_train, self.params, c)
+            val_loss, _ = self.cost_grad(X_val, y_val, self.params, c)
+            train_acc = self.score(X_train, y_train)
+            val_acc = self.score(X_val, y_val)
+
+            hist['train_loss'].append(train_loss)
+            hist['train_acc'].append(train_acc)
+            hist['val_loss'].append(val_loss)
+            hist['val_acc'].append(val_acc)
+
+            # Check if current parameters are the best
+            if val_acc > best_val_acc:
+                best_val_acc = val_acc
+                best_params = self.params.copy()
+
+            print(f"Epoch {epoch+1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Train Acc: {train_acc:.4f}, Val Acc: {val_acc:.4f}")
+
+        # Restore best parameters
+        self.params = best_params
+
+         ### END CODE
 
         # hist dict should look like this with something different than none
         #hist = {'train_loss': None, 'train_acc': None, 'val_loss': None, 'val_acc': None}
         ## self.params should look like this with something better than none, i.e. the best parameters found.
         # self.params = {'W1': None, 'b1': None, 'W2': None, 'b2': None}
         return hist
-        
 
 def numerical_grad_check(f, x, key):
     """ Numerical Gradient Checker """
