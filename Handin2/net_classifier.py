@@ -38,6 +38,8 @@ def softmax(X):
     """
     res = np.zeros(X.shape)
     ### YOUR CODE HERE
+    res = np.exp(X - np.max(X, axis=1, keepdims=True))
+    res /= np.sum(res, axis=1, keepdims=True)
     ### END CODE
     return res
 
@@ -51,6 +53,7 @@ def relu(x):
         Beware of np.max and look at np.maximum
     """
     ### YOUR CODE HERE
+    res = np.maximum(0, x)
     ### END CODE
     return res
 
@@ -96,6 +99,14 @@ class NetClassifier():
             params = self.params
         pred = None
         ### YOUR CODE HERE
+        # Forward pass
+        Z1 = np.dot(X, params['W1']) + params['b1']
+        A1 = relu(Z1)  # ReLU activation
+        Z2 = np.dot(A1, params['W2']) + params['b2']
+        A2 = softmax(Z2)
+        
+        # Predicted classes (index of the max probability for each example)
+        pred = np.argmax(A2, axis=1)
         ### END CODE
         return pred
      
@@ -114,6 +125,8 @@ class NetClassifier():
             params = self.params
         acc = None
         ### YOUR CODE HERE
+        pred = self.predict(X, params)
+        acc = np.mean(pred == y)
         ### END CODE
         return acc
     
