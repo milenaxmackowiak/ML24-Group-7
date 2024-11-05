@@ -132,28 +132,6 @@ class NetClassifier():
     
     @staticmethod
     def cost_grad(X, y, params, c=0.0):
-        """ Compute cost and gradient of neural net on data X with labels y using weight decay parameter c
-        You should implement a forward pass and store the intermediate results 
-        and then implement the backwards pass using the intermediate stored results
-        
-        Use the derivative for cost as a function for input to softmax as derived above
-        
-        Args:
-            X: np.array shape n, self.input_size
-            y: np.array shape n, 1
-            params: dict with keys (W1, W2, b1, b2)
-            c: float - weight decay parameter
-            params: dict of params to use for the computation
-        
-        Returns 
-            cost: scalar - average cross entropy cost with weight decay parameter c
-            dict with keys
-            d_w1: np.array shape w1.shape, entry d_w1[i, j] = \partial cost/ \partial W1[i, j]
-            d_w2: np.array shape w2.shape, entry d_w2[i, j] = \partial cost/ \partial W2[i, j]
-            d_b1: np.array shape b1.shape, entry d_b1[1, j] = \partial cost/ \partial b1[1, j]
-            d_b2: np.array shape b2.shape, entry d_b2[1, j] = \partial cost/ \partial b2[1, j]
-            
-        """
         cost = 0
         W1 = params['W1']
         b1 = params['b1']
@@ -166,10 +144,25 @@ class NetClassifier():
         labels = one_in_k_encoding(y, W2.shape[1]) # shape n x k
                         
         ### YOUR CODE HERE - FORWARD PASS - compute cost with weight decay and store relevant values for backprop
+        hidden_layer = relu(np.dot(X, W1) + b1)
+        output_layer = softmax(np.dot(hidden_layer, W2) + b2)
+
+        log_probs = -np.log(output_layer[range(X.shape[0]), y])
+        cost = np.mean(log_probs) + (c / 2) * (np.sum(W1**2) + np.sum(W2**2))
         ### END CODE
         
         ### YOUR CODE HERE - BACKWARDS PASS - compute derivatives of all weights and bias, store them in d_w1, d_w2, d_b1, d_b2
+        d_output = output_layer - labels
+        d_w2 = np.dot(hidden_layer.T, d_output) / X.shape[0] + c * W2
+        d_b2 = np.sum(d_output, axis=0, keepdims=True) / X.shape[0]
+    
+        d_hidden = np.dot(d_output, W2.T)
+        d_hidden[hidden_layer <= 0] = 0 
+    
+        d_w1 = np.dot(X.T, d_hidden) / X.shape[0] + c * W1
+        d_b1 = np.sum(d_hidden, axis=0, keepdims=True) / X.shape[0]
         ### END CODE
+
         # the return signature
         return cost, {'d_w1': d_w1, 'd_w2': d_w2, 'd_b1': d_b1, 'd_b2': d_b2}
         
@@ -208,7 +201,38 @@ class NetClassifier():
 
         
         ### YOUR CODE HERE
+        for epoch in range(epochs):
+            indices = np.arange(X_train.shape[0])
+            np.random.shuffle(indices)
+            X_train, y_train = X_train[indices], y_train[indices]
+        
+        for i in range(0, X_train.shape[0], batch_size):
+            X_batch = X_train[i:i + batch_size]
+            y_batch = y_train[i:i + batch_size]
+            
+            cost, grads = self.cost_grad(X_batch, y_batch, self.params, c)
+
+            W1 -= lr * grads['d_w1']
+            b1 -= lr * grads['d_b1']
+            W2 -= lr * grads['d_w2']
+            b2 -= lr * grads['d_b2']
+        
+        train_loss, _ = self.cost_grad(X_train, y_train, self.params, c)
+        val_loss, _ = self.cost_grad(X_val, y_val, self.params, c)
+        train_acc = self.score(X_train, y_train)
+        val_acc = self.score(X_val, y_val)
+        
+        hist['train_loss'].append(train_loss)
+        hist['train_acc'].append(train_acc)
+        hist['val_loss'].append(val_loss)
+        hist['val_acc'].append(val_acc)
+        
+        if val_acc > max(hist['val_acc'], default=0):
+            self.params = {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
+        
+        print(f"Epoch {epoch+1}/{epochs}, Train Loss: {train_loss}, Val Loss: {val_loss}, Train Acc: {train_acc}, Val Acc: {val_acc}")
         ### END CODE
+
         # hist dict should look like this with something different than none
         #hist = {'train_loss': None, 'train_acc': None, 'val_loss': None, 'val_acc': None}
         ## self.params should look like this with something better than none, i.e. the best parameters found.
