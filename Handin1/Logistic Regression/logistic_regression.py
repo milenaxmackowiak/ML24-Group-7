@@ -97,9 +97,10 @@ class LogisticRegressionClassifier():
 
                 w = w - lr * gradient
 
-                history.append(cost)
+                # history.append(cost)
                 print(f"Epoch: {epoch+1} Cost: {cost}")
-
+            cost,gradient=self.cost_grad(X,y,w)
+            history.append(cost)
         self.w = w
         self.history = history
 

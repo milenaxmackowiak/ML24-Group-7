@@ -113,7 +113,7 @@ class SoftmaxClassifier():
                 gradient = cost_grad[1]
 
                 W = W - lr * gradient
-
+            cost,_=self.cost_grad(X,Y,W)
             history.append(cost)
             print(f'Epoch: {epoch + 1}; Cost: {cost}')
 
