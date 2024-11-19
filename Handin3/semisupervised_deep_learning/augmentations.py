@@ -13,10 +13,22 @@ def collage(batch_i, batch_j):
     # Needs to be a square image to apply collage augmentation
     im_size = int(batch_i.shape[1])
     assert im_size == int(batch_i.shape[2])
-    result = None
-    interpolation = None
-    
+
     ### YOUR CODE HERE
+
+    half_size = im_size // 2
+    result = np.zeros_like(batch_i)
+
+    # Top-left and bottom-right from batch_j
+    result[:, :half_size, :half_size] = batch_j[:, :half_size, :half_size]
+    result[:, half_size:, half_size:] = batch_j[:, half_size:, half_size:]
+
+    # Top-right and bottom-left from batch_i
+    result[:, :half_size, half_size:] = batch_i[:, :half_size, half_size:]
+    result[:, half_size:, :half_size] = batch_i[:, half_size:, :half_size]
+
+    interpolation = 0.5
+
     ### END CODE
 
     return result, interpolation
@@ -29,9 +41,11 @@ def mixup(batch_i, batch_j, alpha=0.3):
     The inputs are numpy, not torch
     """
     interpolation = np.random.beta(alpha, alpha)
-    result = None
 
     ### YOUR CODE HERE
+
+    result = interpolation * batch_i + (1 - interpolation) * batch_j
+
     ### END CODE
 
     return result, interpolation
