@@ -1,0 +1,1 @@
+The forward_call parameter in the train() method specifies the function used to compute the forward pass of the model during training. It allows flexibility to define whether the training uses the model's pretraining (forward) or fine-tuning (generalize) method for predictions.
