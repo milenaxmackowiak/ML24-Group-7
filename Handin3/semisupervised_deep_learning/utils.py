@@ -36,8 +36,13 @@ def cross_entropy(pred, target):
     if not torch.is_tensor(pred) or not torch.is_tensor(target):
         raise ValueError('X-Entropy loss requires torch tensors for input')
 
-    ### YOUR CODE HERE
-    ### END CODE
+    # Ensuring that pred contains log probabilities
+    if not torch.allclose(torch.sum(torch.exp(pred), dim=-1), torch.tensor(1.0), atol=1e-5):
+        raise ValueError('Predictions must be in log-probability space (use LOG-SOFTMAX)')
+
+    # Calculating cross-entropy loss
+    log_likelihoods = torch.sum(target * pred, dim=-1)
+    mean_log_likelihoods = -torch.mean(log_likelihoods)
 
     return mean_log_likelihoods
 
